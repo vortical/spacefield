@@ -1,0 +1,5 @@
+skyfield
+fastapi
+pytz
+python-dotenv
+uvicorn[standard]
