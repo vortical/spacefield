@@ -1,10 +1,11 @@
 
 from datetime import datetime, timezone
 
-from skyfield import api
+import numpy as np
+from skyfield import api, earthlib
 from skyfield.api import load
-
-from spacefield.model.bodies import BarycentricEntry, Vector
+from skyfield.positionlib import position_of_radec
+from spacefield.model.bodies import BarycentricEntry, Vector, Axis
 
 data_directory = '/spacefield/data'
 loader = api.Loader(data_directory)
@@ -45,7 +46,7 @@ def get_names() -> list[str]:
     return list(kernel_mappings)
 
 def get_body(body_name):
-    kernel_files = kernel_mappings.get(str(body_name))
+    kernel_files = kernel_mappings.get(str(body_name).lower())
 
     if not kernel_files:
         raise Exception(f"Unknown body: {body_name}")
@@ -54,12 +55,38 @@ def get_body(body_name):
     return kernel[body_name]
 
 
+def axis(body_name, time) -> Axis | None:
+    """
+    Only earth for now...
+    This will require using tpc kernels etc...
+
+    :param body_name:
+    :param time:
+    :return:
+    """
+
+    if body_name.lower() != "earth":
+        return None
+
+    #
+    # So for now just return data for earth.
+
+    rotation_angle = earthlib.earth_rotation_angle(time.ut1) * 360
+
+    # this is pretty much [0,0,1] for earth given the reference frame is ICRF
+    axis_direction = position_of_radec(ra_hours=0.0, dec_degrees=90.0).position.au
+    # unit vector
+    axis_direction = axis_direction / np.linalg.norm(axis_direction)
+    return Axis(rotation=rotation_angle, direction=Vector.from_array(axis_direction))
+
 
 def position(body_name, time: datetime):
     body = get_body(body_name)
-    body_at_time = body.at(timescale.from_datetime(time))
+    skyfieldTime = timescale.from_datetime(time)
+    body_at_time = body.at(skyfieldTime)
     return BarycentricEntry(name=body_name,
+                            axis=axis(body_name, skyfieldTime),
                             position=Vector.from_array(body_at_time.position.m),
                             velocity=Vector.from_array(body_at_time.velocity.m_per_s),
-                            datetime=body_at_time.t.utc_datetime());
+                            datetime=body_at_time.t.utc_datetime())
 

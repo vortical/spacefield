@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -16,8 +17,18 @@ class Vector(BaseModel):
         return cls(x=nparray[0], y=nparray[1], z=nparray[2])
 
 
+class Axis(BaseModel):
+    """
+    TODO: consider using a quaternion
+    """
+    # Represents the time of day
+    rotation: float
+    # ICRS vector of the axis, body spins around this axis
+    direction: Vector
+
 class BarycentricEntry(BaseModel):
     name: str
+    axis: Optional[Axis] = None
     position: Vector
     velocity: Vector
     # https://docs.pydantic.dev/2.0/usage/types/datetime/
