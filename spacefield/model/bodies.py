@@ -22,9 +22,9 @@ class Axis(BaseModel):
     TODO: consider using a quaternion
     """
     # Represents the time of day
-    rotation: float
+    rotation: Optional[float] = None
     # ICRS vector of the axis, body spins around this axis
-    direction: Vector
+    direction: Optional[Vector] = None
 
 class BarycentricEntry(BaseModel):
     name: str
