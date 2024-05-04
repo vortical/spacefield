@@ -9,7 +9,7 @@
 # https://github.com/docker/awesome-compose
 services:
   server:
-    image: spacefield_server
+    image: spacefield
     build:
       context: .
     ports:

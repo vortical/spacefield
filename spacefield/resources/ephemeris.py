@@ -7,7 +7,7 @@ from spacefield.model.bodies import BarycentricEntry, Vector
 from spacefield.business import ephemeris
 
 router = APIRouter(
-    prefix="/ephemerids",
+    prefix="/ephemeris",
 )
 
 @router.get("/barycentrics/names")

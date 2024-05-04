@@ -3,7 +3,7 @@ import uvicorn
 
 from typing import Union
 from fastapi import FastAPI
-from spacefield.resources import ephemerids, solar_system
+from spacefield.resources import ephemeris, solar_system
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
