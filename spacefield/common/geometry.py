@@ -9,6 +9,7 @@ def unit(vector):
     """
     return vector / np.linalg.norm(vector)
 
+
 def projection(u, n):
     """
     given u = v + (projection of u onto n), then
@@ -19,9 +20,10 @@ def projection(u, n):
     :return: projection of u onto plane with normal n
     """
     #      u - (projection of u onto n)
-    return u - np.dot(u,n)/np.dot(n, n) * n
+    return u - np.dot(u, n) / np.dot(n, n) * n
 
-def circular_angle(v1, v2, plane_normal=np.array([0,0,1])):
+
+def circular_angle(v1, v2, plane_normal=np.array([0, 0, 1])):
     """
 
     :param v1:
@@ -34,7 +36,7 @@ def circular_angle(v1, v2, plane_normal=np.array([0,0,1])):
 
     a = angle_between(v1_p, v2_p)
 
-    if angle_between(np.cross(v1_p, v2_p), plane_normal) < math.pi/2:
+    if angle_between(np.cross(v1_p, v2_p), plane_normal) < math.pi / 2:
         return a
     else:
         return math.pi * 2 - a

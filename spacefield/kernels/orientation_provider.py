@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Optional
 
-from model.bodies import Axis
+from spacefield.model.bodies import Axis
 
 
 class OrientationProvider(ABC):

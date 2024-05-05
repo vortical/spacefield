@@ -1,8 +1,8 @@
 from datetime import datetime, timezone
 from typing import List, Optional
 
-from spacefield.kernals.ephemeris import BodyEphemerisKernel
-from spacefield.kernals.orientation import BodyOrientationKernel
+from spacefield.kernels.ephemeris import BodyEphemerisKernel
+from spacefield.kernels.orientation import BodyOrientationKernel
 from spacefield.model.bodies import BarycentricState
 
 ephemerisKernel = BodyEphemerisKernel()

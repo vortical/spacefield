@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from kernals.orientation_provider import OrientationProvider
+from spacefield.kernels.orientation_provider import OrientationProvider
 from spacefield.common.geometry import to_cartesian
 from spacefield.model.bodies import Axis, Polar, Vector
 from spacefield.time.intervals import julian_centuries_interval, days_interval
