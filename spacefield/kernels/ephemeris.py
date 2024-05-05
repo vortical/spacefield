@@ -16,6 +16,7 @@ _default_kernel_files = (
     "e_jup365.bsp",
     "e_sat441.bsp",
     "e_nep095.bsp",
+    "ura111.bsp",
     "ura115.bsp",
     "plu043.bsp"
 )
