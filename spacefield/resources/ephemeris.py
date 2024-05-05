@@ -1,9 +1,7 @@
 from datetime import datetime, timezone
+from fastapi import APIRouter,  HTTPException
 
-from fastapi import APIRouter
-import pytz
-
-from spacefield.model.bodies import BarycentricEntry, Vector
+from spacefield.model.bodies import BarycentricState, Vector
 from spacefield.business import ephemeris
 
 router = APIRouter(
@@ -16,9 +14,10 @@ async def get_barycentric_entry_names() -> list[str]:
 
 
 @router.get("/barycentrics/{entry_name}")
-async def get_barycentric_entry(entry_name, time: datetime) -> BarycentricEntry:
-    return ephemeris.position(entry_name, time)
-    # return BarycentricEntry(name=entry_name, position=Vector(x=0, y=0, z=0), velocity=Vector(x=0, y=0,z=0), datetime=now_utc.astimezone(pacific_timezone))
+async def get_barycentric_entry(entry_name, time: datetime) -> BarycentricState:
+    state = ephemeris.get_state(entry_name, time)
+    if not state:
+        raise HTTPException(status_code=404, detail="Item not found")
 
-    #
+    return state
 

@@ -42,7 +42,7 @@ class Axis(BaseModel):
     # todo: this is same a direction
     z: Optional[List[float]] = None
 
-class BarycentricEntry(BaseModel):
+class BarycentricState(BaseModel):
     name: str
     ephemeris: Ephemeris
     axis: Optional[Axis] = None

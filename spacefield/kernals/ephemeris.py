@@ -1,7 +1,7 @@
 
 from datetime import datetime, timezone
 
-from typing import List, Mapping, Sequence
+from typing import List, Mapping, Sequence, Optional
 
 from skyfield import api, earthlib
 
@@ -10,7 +10,7 @@ from spacefield.model.bodies import Vector, Ephemeris
 data_directory = '/spacefield/data'
 loader = api.Loader(data_directory)
 timescale = api.load.timescale()
-_default_kernel_files = Sequence[
+_default_kernel_files = (
     "de440s.bsp",
     "e_mar097.bsp",
     "e_jup365.bsp",
@@ -18,7 +18,7 @@ _default_kernel_files = Sequence[
     "e_nep095.bsp",
     "ura115.bsp",
     "plu043.bsp"
-]
+)
 
 def _build_kernel_mappings(kernel_files: Sequence[str]) -> Mapping[str, List[str]]:
     """
@@ -45,18 +45,19 @@ class BodyEphemerisKernel:
     def get_names(self) -> list[str]:
         return list(self.kernel_mappings)
 
-    def get_body(self, name):
+    def get_body(self, name) -> Optional[any]:
 
         kernel_files = self.kernel_mappings.get(str(name).lower())
-
         if not kernel_files:
-            raise Exception(f"Unknown body: {name}")
+            return None
 
         kernel = loader(kernel_files[0])
         return kernel[name]
 
-    def get_ephemeris_at_time(self, name, time: datetime) -> Ephemeris:
-        body = self.get_body(name)
+    def get_ephemeris_at_time(self, body_name, time: datetime) -> Optional[Ephemeris]:
+        body = self.get_body(body_name)
+        if not body:
+            return None
         body_at_time = body.at(timescale.from_datetime(time))
         return Ephemeris(
             position=Vector.from_array(body_at_time.position.m),

@@ -19,8 +19,9 @@ app.add_middleware(
     allow_methods=["GET"],
     allow_headers=["*"],
 )
-app.include_router(ephemerids.router)
+app.include_router(ephemeris.router)
 app.include_router(solar_system.router)
+
 
 @app.get("/")
 async def read_root():

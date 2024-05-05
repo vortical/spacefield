@@ -26,4 +26,4 @@ def get_orientation_provider(name):
 class BodyOrientationKernel(OrientationProvider):
     def get_axis_at_time(self, body_name, time) -> Axis | None:
         orientation_provider = get_orientation_provider(body_name)
-        return orientation_provider.orientation(body_name, time)
+        return orientation_provider.get_axis_at_time(body_name, time)
