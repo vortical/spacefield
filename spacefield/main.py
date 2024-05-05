@@ -3,7 +3,7 @@ import uvicorn
 
 from typing import Union
 from fastapi import FastAPI
-from spacefield.resources import ephemerids, solar_system
+from spacefield.resources import ephemeris, solar_system
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -19,8 +19,9 @@ app.add_middleware(
     allow_methods=["GET"],
     allow_headers=["*"],
 )
-app.include_router(ephemerids.router)
+app.include_router(ephemeris.router)
 app.include_router(solar_system.router)
+
 
 @app.get("/")
 async def read_root():
