@@ -47,13 +47,8 @@ class BodyEphemerisKernel:
         return list(self.kernel_mappings)
 
     def get_body(self, name) -> Optional[any]:
-
         kernel_files = self.kernel_mappings.get(str(name).lower())
-        if not kernel_files:
-            return None
-
-        kernel = loader(kernel_files[0])
-        return kernel[name]
+        return loader(kernel_files[0])[name] if kernel_files else None
 
     def get_ephemeris_at_time(self, body_name, time: datetime) -> Optional[Ephemeris]:
         body = self.get_body(body_name)

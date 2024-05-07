@@ -1,9 +1,8 @@
 
 import uvicorn
 
-from typing import Union
 from fastapi import FastAPI
-from spacefield.resources import ephemeris, solar_system
+from spacefield.resources import ephemeris
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -20,15 +19,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(ephemeris.router)
-app.include_router(solar_system.router)
 
-
-@app.get("/")
-async def read_root():
-    return {"Hello": "World"}
-
-
-# // to run standalone, we create our own wsgi server
+# To run standalone we create our own wsgi server
 if __name__ == '__main__':
     port = 8001
     uvicorn.run(app, host="0.0.0.0", port=port)

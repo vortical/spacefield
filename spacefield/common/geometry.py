@@ -29,7 +29,7 @@ def circular_angle(v1, v2, plane_normal=np.array([0, 0, 1])):
     :param v1:
     :param v2:
     :param plane_normal:
-    :return: An angle between 0 and 2PI, in the direction of the normal.
+    :return: An angle between 0 and 2PI (azimuthal), in the direction of the normal.
     """
     v1_p = projection(v1, plane_normal)
     v2_p = projection(v2, plane_normal)
