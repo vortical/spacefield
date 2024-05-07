@@ -96,7 +96,6 @@ Which will respond with:
 All responses will include the `ephemeris` property. In this case, the moon's location from the `solar system barycenter (SSB)`  at time `2024-05-07T17:18:00Z` is:
 
 ```json
-...
 {
   "position": {
     "x": -103213151812.94234,
@@ -104,12 +103,10 @@ All responses will include the `ephemeris` property. In this case, the moon's lo
     "z": -44211648225.45397
   }
 }
-...
 ```
 
 Contrast this position with that of earth's:
 ```json
-  ...
 {
   "position": {
     "x": -103486241984.77074,
@@ -117,13 +114,12 @@ Contrast this position with that of earth's:
     "z": -44321758071.95965
   }
 }
-...
 ```
 
 And the Moon-Earth distance at that time is:
 
-$` sqrt{ (-103213151812.94234 - -103486241984.77074)^2  + ( -102105449519.62408 - -102322020430.89778 )^2 +  (-44211648225.45397 - -44321758071.95965) ^2} == 365520696.89237565`$
-The unit for positions and velocities are _meters_ and _meters/second_. So in km is: `~365,521km`
+$` sqrt{ (-103213151 - -10348624)^2  + (-102105449 - -102322020)^2 +  (-44211648 - -44321758) ^2} == 365521`$
+So in km is: `~365,521km`
 
 #### Orientation
 The orientation is provided by the `axis` property.
