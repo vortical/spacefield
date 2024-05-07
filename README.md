@@ -118,7 +118,7 @@ Contrast this position with that of earth's:
 
 And the Moon-Earth distance at that time is:
 
-$` sqrt{ (-103213151 - -10348624)^2  + (-102105449 - -102322020)^2 +  (-44211648 - -44321758) ^2} == 365521`$
+$` sqrt{ (-103213151 - -10348624)^2  + (-102105449 - -102322020)^2 +  (-44211648 - -44321758) ^2 } == 365521`$
 So in km is: `~365,521km`
 
 #### Orientation
