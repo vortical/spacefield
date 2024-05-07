@@ -1,4 +1,4 @@
-The initial version of Spacefield offers a concise set of [CORS-friendly HTTP endpoints]((http://vortical.hopto.org:8000/docs)) for accessing 
+The initial version of Spacefield offers a concise set of [CORS-friendly HTTP endpoints](https://vortical.hopto.org/spacefield/docs) for accessing 
 ephemeris and orientation/frame data of celestial bodies within the solar system. Measurements adhere
 to the International Celestial Reference Frame (ICRF), with all distance units standardized in meters.
 
@@ -22,7 +22,7 @@ The key apis and documentation I used in realizing the API are:
 
 ### Future direction of this API
 
-The primary focus of this API is currently to serve [Orri](https://vortical.hopto.org/orri/?state={%20%22target%22:%22Uranus%22})'s needs. As Orri's requirements and feature set expand, we anticipate corresponding enhancements to this API. In the near future, expect:
+The primary focus of this API is currently to serve [Orri](https://vortical.hopto.org/orri/?state={%20%22target%22:%22Uranus%22})'s needs. As Orri's requirements and feature set expand, we anticipate corresponding enhancements to this API. Shortly, expect:
 
 - Inclusion of additional celestial bodies, including satellites with orbits represented as Two Line Elements (TLE).
 - Implementation of functionality to register imagery and 3D models linked to bodies/satellites, possibly incorporating multi-tenancy features.
