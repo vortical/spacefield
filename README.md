@@ -18,7 +18,7 @@ Key components of the underlying stack include:
 
 The key apis and documentation I used in realizing the API are:
 - [Skyfield](https://rhodesmill.org/skyfield/) for computing positions and velocities of the celestial bodies
-- https://astropedia.astrogeology.usgs.gov/download/Docs/WGCCRE/WGCCRE2009reprint.pdf for calculating the orientation of bodies. 
+- https://d9-wret.s3.us-west-2.amazonaws.com/assets/palladium/production/s3fs-public/atoms/files/WGCCRE2009reprint.pdf for calculating the orientation of bodies. 
 
 ### Future direction of this API
 
