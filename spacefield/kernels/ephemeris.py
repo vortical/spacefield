@@ -5,10 +5,10 @@ from typing import List, Mapping, Sequence, Optional
 
 from skyfield import api, earthlib
 
+from spacefield.config import DATA_DIRECTORY
 from spacefield.model.bodies import Vector, Ephemeris
 
-data_directory = '/spacefield/data'
-loader = api.Loader(data_directory)
+loader = api.Loader(DATA_DIRECTORY)
 timescale = api.load.timescale()
 _default_kernel_files = (
     "de440s.bsp",
