@@ -9,7 +9,7 @@ from astroquery.jplhorizons import Horizons
 
 from spacefield.config import GM_KERNEL_PATH
 from spacefield.kernels.ephemeris import BodyEphemerisKernel
-from spacefield.model.bodies import BurnEvent, Ephemeris, MissionWindow, TrajectoryPoint, Vector
+from spacefield.model.bodies import BurnAcceleration, BurnEvent, Ephemeris, MissionWindow, TrajectoryPoint, Vector
 
 # NAIF body IDs included in gravity model
 _GRAVITY_BODIES = {
@@ -23,7 +23,7 @@ _GRAVITY_BODIES = {
 
 _KM3_S2_TO_M3_S2 = (1 * u.km ** 3 / u.s ** 2).to(u.m ** 3 / u.s ** 2).value
 
-_BURN_THRESHOLD_M_S2 = 0.02  # residual acceleration above this → burn
+_BURN_THRESHOLD_M_S2 = 0.005  # residual acceleration above this → burn
 _STEP_SECONDS = 60
 
 # J2 oblateness parameters for close-approach bodies
@@ -148,6 +148,11 @@ def _make_burn_event(times, residuals, start_idx: int, end_idx: int) -> BurnEven
     total_dv = float(np.sum(magnitudes) * _STEP_SECONDS)
     duration = (times[end_idx] - times[start_idx]).total_seconds()
 
+    accelerations = [
+        BurnAcceleration(datetime=times[i], acceleration=Vector.from_array(residuals[i]))
+        for i in range(start_idx, end_idx + 1)
+    ]
+
     return BurnEvent(
         start=times[start_idx],
         end=times[end_idx],
@@ -155,6 +160,7 @@ def _make_burn_event(times, residuals, start_idx: int, end_idx: int) -> BurnEven
         burn_vector=Vector(x=float(mean_vector[0]), y=float(mean_vector[1]), z=float(mean_vector[2])),
         total_delta_v_m_s=total_dv,
         mean_acceleration_m_s2=mean_accel,
+        accelerations=accelerations,
     )
 
 

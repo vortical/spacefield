@@ -72,6 +72,12 @@ class TrajectoryPoint(BaseModel):
     ephemeris: Ephemeris
 
 
+class BurnAcceleration(BaseModel):
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True, serialize_by_alias=True)
+    datetime: datetime
+    acceleration: Vector  # m/s², ICRF
+
+
 class BurnEvent(BaseModel):
     model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True, serialize_by_alias=True)
     start: datetime
@@ -80,4 +86,5 @@ class BurnEvent(BaseModel):
     burn_vector: Vector           # mean non-gravitational acceleration, m/s², ICRF
     total_delta_v_m_s: float      # m/s, integrated residual acceleration × step
     mean_acceleration_m_s2: float
+    accelerations: List[BurnAcceleration]  # per-minute acceleration vectors
 
