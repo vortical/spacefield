@@ -1,7 +1,9 @@
 from datetime import datetime
 from typing import Optional, List
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
+
+from pydantic.alias_generators import to_camel
 
 class Body(BaseModel):
     name: str
@@ -49,4 +51,33 @@ class BarycentricState(BaseModel):
     # https://docs.pydantic.dev/2.0/usage/types/datetime/
     # YYYY-MM-DD[T]HH:MM[:SS[.ffffff]][Z or [±]HH[:]MM]
     datetime: datetime
+
+
+class MissionWindow(BaseModel):
+    start: datetime
+    end: datetime
+
+
+class SpacecraftInfo(BaseModel):
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True, serialize_by_alias=True)
+    name: str
+    naif_id: int
+    description: str
+    mission_window: Optional[MissionWindow] = None
+
+
+class TrajectoryPoint(BaseModel):
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True, serialize_by_alias=True)
+    datetime: datetime
+    ephemeris: Ephemeris
+
+
+class BurnEvent(BaseModel):
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True, serialize_by_alias=True)
+    start: datetime
+    end: datetime
+    duration_s: float
+    burn_vector: Vector           # mean non-gravitational acceleration, m/s², ICRF
+    total_delta_v_m_s: float      # m/s, integrated residual acceleration × step
+    mean_acceleration_m_s2: float
 
