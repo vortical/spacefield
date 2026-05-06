@@ -55,7 +55,7 @@ def _gravity_accel(r_spacecraft: np.ndarray, time: datetime, gm: dict[int, float
     for body_id, body_name in _GRAVITY_BODIES.items():
         gm_val = gm.get(body_id)
         if gm_val is None:
-            raise RuntimeError(f"Failed to retrieve gm value for {body_name}")
+            raise RuntimeError(f"Failed to retrieve gm valu Cae for {body_name}")
 
         eph = kernel.get_ephemeris_at_time(body_name, time)
         if eph is None:
@@ -136,7 +136,8 @@ async def analyze_trajectory(trajectory_points: list[TrajectoryPoint]) -> list[B
         d_v = np.zeros((n_points - 1, 3))
         for i in range(1 , n_points - 1):
             a_total = (velocities[i + 1] - velocities[i-1]) / (2 *_STEP_SECONDS)
-            a_gravity = 0.5 * (gravity_accelerations[i-1] + gravity_accelerations[i + 1])
+            # a_gravity = 0.5 * (gravity_accelerations[i-1] + gravity_accelerations[i + 1])
+            a_gravity = gravity_accelerations[i]  # at current point, not averaged neighbours
             d_v[i] = (a_total - a_gravity) * _STEP_SECONDS
 
         burns = []
