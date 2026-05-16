@@ -2,9 +2,9 @@
 from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException
 
-from spacefield.model.bodies import BarycentricState, SpacecraftInfo, BurnEvent, TrajectoryPoint
+from spacefield.model.bodies import BarycentricState, SpacecraftInfo, BurnEvent, TrajectoryPoint, MissionWindow
 from spacefield.business import ephemeris
-from spacefield.business.spacecraft import get_ephemeris, get_spacecrafts, get_spacecraft, get_burns, get_trajectory
+from spacefield.business.spacecraft import get_ephemeris, get_spacecrafts, get_spacecraft, get_burns, get_trajectory, get_mission_window
 
 
 
@@ -62,3 +62,12 @@ async def get_spacecraft_trajectory(name: str, step: int = 1) -> list[Trajectory
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"Trajectory error: {e}")
 
+
+@router.get("/spacecraft/{name}/missionwindow", response_model=MissionWindow)
+async def get_spacecraft_mission_window(name: str):
+    """Returns the actual available trajectory data window from JPL Horizons."""
+    spacecraft = get_spacecraft(name)  # lookup naifId from your JSON config
+    if spacecraft is None:
+        raise HTTPException(status_code=404, detail=f"Spacecraft '{name}' not found")
+
+    return await get_mission_window(spacecraft)

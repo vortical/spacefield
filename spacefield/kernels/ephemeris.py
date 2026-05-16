@@ -8,6 +8,11 @@ from skyfield import api, earthlib
 from spacefield.config import DATA_DIRECTORY
 from spacefield.model.bodies import Vector, Ephemeris
 
+# Loading JPL ephemeris files
+# https://rhodesmill.org/skyfield/planets.html
+#
+# Planetary Satellite Ephemerides:
+# https://ssd.jpl.nasa.gov/sats/ephem/files.html
 loader = api.Loader(DATA_DIRECTORY)
 timescale = api.load.timescale()
 _default_kernel_files = (

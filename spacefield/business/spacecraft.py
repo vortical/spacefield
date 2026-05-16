@@ -1,8 +1,10 @@
 import asyncio
 import json
 import os
+import re
 
-from datetime import datetime, timezone
+
+from datetime import datetime, timezone, timedelta
 from typing import Optional
 from functools import cache
 
@@ -12,6 +14,7 @@ from spacefield.model.bodies import SpacecraftInfo, BurnEvent, MissionWindow, Tr
 import spacefield.kernels.trajectory as trajectory_service
 import spacefield.kernels.burns as burns_service
 
+from astropy.time import Time as AstroTime
 
 import spacefield.kernels.horizons as horizons
 
@@ -120,3 +123,46 @@ async def get_ephemeris(spacecraft: SpacecraftInfo,  time: datetime) -> Barycent
         axis=None, # direction of travel?
         datetime=time.astimezone(timezone.utc),
     )
+
+async def get_mission_window(spacecraft: SpacecraftInfo) -> MissionWindow:
+
+    async def handle_boundary(spacecraft: SpacecraftInfo, time: datetime) -> datetime:
+
+        # Convert Horizons format "2026-APR-02 01:58:32.3050" to ISO before parsing
+        def _horizons_date_to_astrotime(horizons_str: str) -> AstroTime:
+            # Parse Horizons' non-standard format: YYYY-MON-DD HH:MM:SS.SSSS
+            dt = datetime.strptime(horizons_str.strip(), "%Y-%b-%d %H:%M:%S.%f")
+            return AstroTime(dt, scale='tdb')
+
+        try:
+            ephemeris = await get_ephemeris(spacecraft, time)
+            # If no exception, the epoch was valid — shouldn't happen with year 0 / 3000
+            raise RuntimeError(f"Expected out-of-bounds error  for  {spacecraft.name} at epoch {time}")
+        except RuntimeError:
+            raise
+        except Exception as e:
+            error_msg = str(e)
+            match = re.search(r'(?:prior to|after) A\.D\.\s+([\d]{4}-[A-Z]{3}-[\d]{2}\s[\d:\.]+)\s+TD', error_msg)
+            if match:
+                t = match.group(1)
+                return _horizons_date_to_astrotime(t).utc.to_datetime(timezone.utc)
+
+            raise RuntimeError(f"Horizons query failed for  {spacecraft.name}: {error_msg}")
+
+    datetime(1000, 1, 1, tzinfo=timezone.utc)
+
+    start, end = await asyncio.gather(
+        handle_boundary(spacecraft, datetime(1000, 1, 1, tzinfo=timezone.utc)),
+        handle_boundary(spacecraft, datetime(3000, 1, 1, tzinfo=timezone.utc))
+    )
+
+    # Start: round up to next whole second to stay safely inside the valid range
+    if start.microsecond > 0:
+        start = start.replace(microsecond=0) + timedelta(seconds=1)
+
+    # End: truncate to whole second to stay safely inside the valid range
+    end = end.replace(microsecond=0)
+
+
+    return MissionWindow(start=start, end=end)
+

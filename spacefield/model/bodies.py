@@ -55,7 +55,7 @@ class BarycentricState(BaseModel):
 
 class MissionWindow(BaseModel):
     start: datetime
-    end: datetime
+    end: Optional[datetime] = None
 
 
 class SpacecraftInfo(BaseModel):
