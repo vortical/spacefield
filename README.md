@@ -61,11 +61,11 @@ curl 'https://vortical.hopto.org/spacefield/ephemeris/spacecraft/artemis2?time=2
 
 ## Technical highlights
 
-- **ICRF barycentric coordinates throughout.** Position and velocity are SI units against the solar-system barycenter — usable directly in physics computations, no frame transforms required at the caller.
+- **ICRF barycentric coordinates throughout.** Position and velocity are SI units against the solar-system barycenter; usable directly in physics computations, no frame transforms required at the caller.
 - **Dual orientation pipeline.** SPICE BPC/TF/TPC kernels drive the Moon (MOON_ME_DE421 frame); IAU WGCCRE 2009 analytic pole and prime-meridian models cover the Sun, planets, and major satellites.
-- **JPL Horizons integration for spacecraft.** Spacecraft ephemerides (Artemis I/II, Perseverance) are queried from NASA's Horizons system via `astroquery`, with TDB ↔ UTC conversion handled correctly (~69 s offset, ~2000 km positional impact if ignored).
-- **Spacecraft burn detection.** Spacecraft trajectory points are differentiated against the local gravity field to surface burn events as discrete `BurnEvent` records.
-- **Async FastAPI + Pydantic.** Strict response models for every endpoint. Blocking Skyfield and astroquery calls are offloaded via `asyncio.to_thread` so the event loop stays responsive.
+- **JPL Horizons integration for spacecraft.** Spacecraft ephemerides (Artemis I/II, Perseverance) are queried from NASA's Horizons system with TDB ↔ UTC conversion.
+- **Spacecraft burn detection.** Spacecraft trajectory points are differentiated against the local gravity field to determine burn events as discrete `BurnEvent` records.
+- **Async FastAPI + Pydantic.** Strict response models for every endpoint.
 
 ## Running the service
 
