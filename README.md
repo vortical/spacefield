@@ -1,4 +1,4 @@
-The initial version of Spacefield offers a concise set of [CORS-friendly HTTP endpoints]((http://vortical.hopto.org:8000/docs)) for accessing 
+The initial version of Spacefield offers a concise set of [CORS-friendly HTTP endpoints](https://vortical.hopto.org/spacefield/docs) for accessing 
 ephemeris and orientation/frame data of celestial bodies within the solar system. Measurements adhere
 to the International Celestial Reference Frame (ICRF), with all distance units standardized in meters.
 
@@ -18,11 +18,11 @@ Key components of the underlying stack include:
 
 The key apis and documentation I used in realizing the API are:
 - [Skyfield](https://rhodesmill.org/skyfield/) for computing positions and velocities of the celestial bodies
-- https://astropedia.astrogeology.usgs.gov/download/Docs/WGCCRE/WGCCRE2009reprint.pdf for calculating the orientation of bodies. 
+- https://d9-wret.s3.us-west-2.amazonaws.com/assets/palladium/production/s3fs-public/atoms/files/WGCCRE2009reprint.pdf for calculating the orientation of bodies. 
 
 ### Future direction of this API
 
-The primary focus of this API is currently to serve [Orri](https://vortical.hopto.org/orri/?state={%20%22target%22:%22Uranus%22})'s needs. As Orri's requirements and feature set expand, we anticipate corresponding enhancements to this API. In the near future, expect:
+The primary focus of this API is currently to serve [Orri](https://vortical.hopto.org/orri/?state={%20%22target%22:%22Uranus%22})'s needs. As Orri's requirements and feature set expand, we anticipate corresponding enhancements to this API. Shortly, expect:
 
 - Inclusion of additional celestial bodies, including satellites with orbits represented as Two Line Elements (TLE).
 - Implementation of functionality to register imagery and 3D models linked to bodies/satellites, possibly incorporating multi-tenancy features.
@@ -96,7 +96,6 @@ Which will respond with:
 All responses will include the `ephemeris` property. In this case, the moon's location from the `solar system barycenter (SSB)`  at time `2024-05-07T17:18:00Z` is:
 
 ```json
-...
 {
   "position": {
     "x": -103213151812.94234,
@@ -104,12 +103,10 @@ All responses will include the `ephemeris` property. In this case, the moon's lo
     "z": -44211648225.45397
   }
 }
-...
 ```
 
 Contrast this position with that of earth's:
 ```json
-  ...
 {
   "position": {
     "x": -103486241984.77074,
@@ -117,13 +114,12 @@ Contrast this position with that of earth's:
     "z": -44321758071.95965
   }
 }
-...
 ```
 
 And the Moon-Earth distance at that time is:
 
-$` sqrt{ (-103213151812.94234 - -103486241984.77074)^2  + ( -102105449519.62408 - -102322020430.89778 )^2 +  (-44211648225.45397 - -44321758071.95965) ^2} == 365520696.89237565`$
-The unit for positions and velocities are _meters_ and _meters/second_. So in km is: `~365,521km`
+$` sqrt{ (-103213151 - -10348624)^2  + (-102105449 - -102322020)^2 +  (-44211648 - -44321758) ^2 } == 365521`$
+So in km is: `~365,521km`
 
 #### Orientation
 The orientation is provided by the `axis` property.
