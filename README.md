@@ -6,7 +6,6 @@ Positions and velocities are returned in the International Celestial Reference F
 
 Serves [**Orri**](https://vortical.hopto.org/orri/), a 3D solar-system visualizer.
 
-- API: [`vortical.hopto.org/spacefield`](https://vortical.hopto.org/spacefield/)
 - Swagger: [`vortical.hopto.org/spacefield/docs`](https://vortical.hopto.org/spacefield/docs)
 
 ## API
