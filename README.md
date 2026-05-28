@@ -1,242 +1,119 @@
-The initial version of Spacefield offers a concise set of [CORS-friendly HTTP endpoints](https://vortical.hopto.org/spacefield/docs) for accessing 
-ephemeris and orientation/frame data of celestial bodies within the solar system. Measurements adhere
-to the International Celestial Reference Frame (ICRF), with all distance units standardized in meters.
+# spacefield
 
-Currently utilized by [Orri](https://vortical.hopto.org/orri/?state={%20%22target%22:%22Jupiter%22}), which necessitates precise positions, velocities, and orientations of 
-celestial bodies.
+A FastAPI service that serves solar-system ephemeris and body-orientation data over HTTP.
 
-While recognizing the prevalence of widely-used standards in various tools, this API maintains a
-pragmatic, straightforward approach tailored to Orri's evolving needs. Something not found in any of
-the other tools/API.
+Positions and velocities are returned in the International Celestial Reference Frame (ICRF), in **meters** and **meters per second**, relative to the Solar System Barycenter. Orientation is returned as a body-fixed frame plus a sidereal rotation angle.
 
-Key components of the underlying stack include:
+Serves [**Orri**](https://vortical.hopto.org/orri/), a 3D solar-system visualizer.
 
-- Python
-- FastAPI for web framework, featuring Pydantic data models and Swagger documentation.
-- Uvicorn as the ASGI web server.
-- Docker for containerization
+- API: [`vortical.hopto.org/spacefield`](https://vortical.hopto.org/spacefield/)
+- Swagger: [`vortical.hopto.org/spacefield/docs`](https://vortical.hopto.org/spacefield/docs)
 
-The key apis and documentation I used in realizing the API are:
-- [Skyfield](https://rhodesmill.org/skyfield/) for computing positions and velocities of the celestial bodies
-- https://d9-wret.s3.us-west-2.amazonaws.com/assets/palladium/production/s3fs-public/atoms/files/WGCCRE2009reprint.pdf for calculating the orientation of bodies. 
+## API
 
-### Future direction of this API
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/ephemeris/bodies` | List of available bodies (Sun, planets, major moons, Pluto system). |
+| `GET` | `/ephemeris/bodies/{name}?time={ISO8601}` | Position, velocity, and orientation of a body at a given UTC time. |
+| `GET` | `/ephemeris/spacecraft` | Registered spacecraft (currently Artemis I, Artemis II, Perseverance). |
+| `GET` | `/ephemeris/spacecraft/{name}?time={ISO8601}` | Spacecraft state at a given UTC time. Backed by JPL Horizons. |
+| `GET` | `/ephemeris/spacecraft/{name}/burns` | Detected burn events along the spacecraft's trajectory. |
+| `GET` | `/ephemeris/spacecraft/{name}/trajectory?step={int}` | Trajectory samples across the mission window. |
+| `GET` | `/ephemeris/spacecraft/{name}/missionwindow` | Time range for which Horizons has data for the spacecraft. |
 
-The primary focus of this API is currently to serve [Orri](https://vortical.hopto.org/orri/?state={%20%22target%22:%22Uranus%22})'s needs. As Orri's requirements and feature set expand, we anticipate corresponding enhancements to this API. Shortly, expect:
+## Example
 
-- Inclusion of additional celestial bodies, including satellites with orbits represented as Two Line Elements (TLE).
-- Implementation of functionality to register imagery and 3D models linked to bodies/satellites, possibly incorporating multi-tenancy features.
-
-Further developments beyond these are uncertain at this stage. Should this API continue to be active..
-
-
-### Quick overview of Usage
-Although a Swagger endpoint is provided, this section will add a bit of context.
-
-
-The Endpoints currently serves up data for a small subset of bodies (about 100), representing the planets and the major moons. To get a list 
-of supported bodies:
-
-```commandline
-curl -X 'GET' \
-  'https://vortical.hopto.org/ephemeris/barycentrics/names' \
-  -H 'accept: application/json'
+```bash
+curl 'https://vortical.hopto.org/spacefield/ephemeris/bodies/moon?time=2024-05-07T17:18:00Z'
 ```
 
-To get the ephemeris and orientation data for the moon at a specific time ()
-```commandline
-curl -X 'GET' \
-  'https://vortical.hopto.org/ephemeris/barycentrics/moon?time=2024-05-07T17%3A18%3A00.000Z' \
-  -H 'accept: application/json'
-```
-Which will respond with:
 ```json
 {
   "name": "moon",
   "ephemeris": {
-    "position": {
-      "x": -103213151812.94234,
-      "y": -102105449519.62408,
-      "z": -44211648225.45397
-    },
-    "velocity": {
-      "x": 20731.46800642197,
-      "y": -17939.504725232804,
-      "z": -7681.308344513707
-    }
+    "position": { "x": -103213151812.94, "y": -102105449519.62, "z":  -44211648225.45 },
+    "velocity": { "x":      20731.4680,   "y":     -17939.5047,   "z":      -7681.3083 }
   },
   "axis": {
     "rotation": 218.61082467203437,
-    "direction": {
-      "x": -0.005999879964571669,
-      "y": -0.3737000559483818,
-      "z": 0.9275301987669118
-    },
-    "x": [
-      -0.781388526480469,
-      -0.5770624662413564,
-      -0.2375518485302201
-    ],
-    "y": [
-      -0.6240160031001544,
-      0.726186737857157,
-      0.288542630533667
-    ],
-    "z": [
-      -0.005999879964571669,
-      -0.3737000559483818,
-      0.9275301987669118
-    ]
+    "direction": { "x": -0.0060, "y": -0.3737, "z":  0.9275 },
+    "x": [-0.7814, -0.5771, -0.2376],
+    "y": [-0.6240,  0.7262,  0.2885],
+    "z": [-0.0060, -0.3737,  0.9275]
   },
   "datetime": "2024-05-07T17:18:00Z"
 }
 ```
 
-#### Ephemeris property
-All responses will include the `ephemeris` property. In this case, the moon's location from the `solar system barycenter (SSB)`  at time `2024-05-07T17:18:00Z` is:
+`ephemeris.position` and `ephemeris.velocity` are barycentric ICRF vectors in meters and m·s⁻¹. `axis.z` is the body's spin pole; `axis.x`/`axis.y` plus `axis.rotation` give the prime-meridian frame at the requested time.
 
-```json
-{
-  "position": {
-    "x": -103213151812.94234,
-    "y": -102105449519.62408,
-    "z": -44211648225.45397
-  }
-}
+## Quickstart
+
+```bash
+# List bodies
+curl 'https://vortical.hopto.org/spacefield/ephemeris/bodies'
+
+# Get a body's state at a UTC time
+curl 'https://vortical.hopto.org/spacefield/ephemeris/bodies/mars?time=2026-04-02T00:00:00Z'
+
+# Get a spacecraft's state (queries JPL Horizons)
+curl 'https://vortical.hopto.org/spacefield/ephemeris/spacecraft/artemis2?time=2026-04-02T01:57:24Z'
 ```
 
-Contrast this position with that of earth's:
-```json
-{
-  "position": {
-    "x": -103486241984.77074,
-    "y": -102322020430.89778,
-    "z": -44321758071.95965
-  }
-}
+## Technical highlights
+
+- **ICRF barycentric coordinates throughout.** Position and velocity are SI units against the solar-system barycenter — usable directly in physics computations, no frame transforms required at the caller.
+- **Dual orientation pipeline.** SPICE BPC/TF/TPC kernels drive the Moon (MOON_ME_DE421 frame); IAU WGCCRE 2009 analytic pole and prime-meridian models cover the Sun, planets, and major satellites.
+- **JPL Horizons integration for spacecraft.** Spacecraft ephemerides (Artemis I/II, Perseverance) are queried from NASA's Horizons system via `astroquery`, with TDB ↔ UTC conversion handled correctly (~69 s offset, ~2000 km positional impact if ignored).
+- **Spacecraft burn detection.** Spacecraft trajectory points are differentiated against the local gravity field to surface burn events as discrete `BurnEvent` records.
+- **Async FastAPI + Pydantic.** Strict response models for every endpoint. Blocking Skyfield and astroquery calls are offloaded via `asyncio.to_thread` so the event loop stays responsive.
+
+## Running the service
+
+### Docker (recommended)
+
+```bash
+docker compose up --build
 ```
 
-And the Moon-Earth distance at that time is:
+The API and Swagger UI are then at `http://localhost:8000/docs`.
 
-$` sqrt{ (-103213151 - -10348624)^2  + (-102105449 - -102322020)^2 +  (-44211648 - -44321758) ^2 } == 365521`$
-So in km is: `~365,521km`
+### Outside Docker
 
-#### Orientation
-The orientation is provided by the `axis` property.
-```json
-"axis": {
-    "rotation": 218.61082467203437,
-    "direction": {
-      "x": -0.005999879964571669,
-      "y": -0.3737000559483818,
-      "z": 0.9275301987669118
-    },
-    "x": [
-      -0.781388526480469,
-      -0.5770624662413564,
-      -0.2375518485302201
-    ],
-    "y": [
-      -0.6240160031001544,
-      0.726186737857157,
-      0.288542630533667
-    ],
-    "z": [
-      -0.005999879964571669,
-      -0.3737000559483818,
-      0.9275301987669118
-    ]
-  }
-```
-If the `axis` property is provided, then `z` axis will always be provided (`direction` is just its alias and will probably be removed).
-`z` represents the body's pole/spin axis.
-
-The `rotation` along with associated `x` and `y` properties are currently optional. These properties specify the sidereal rotation; the longitude facing the sun at
-a specific time.
-
-
-
-## Installation Notes
-
-### Download ephemeris files before starting up
-
-- [de440s.bsp](https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/planets/de440s.bsp)
-- [mar097.bsp](https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/mar097.bsp)
-- [jup365.bsp](https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/jup365.bsp)
-- [sat441.bsp](https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/sat441.bsp)
-- [nep095.bsp](https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/nep095.bsp)
-- [ura111.bsp](https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/ura111.bsp)
-- [ura115.bsp](https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/ura115.bsp)
-- [plu043.bsp](https://naif.jpl.nasa.gov/pub/naif/pds/wgc/kernels/spk/plu043.bsp)
-
-Put them wherever you set the  /spacefield/data volume in docker:
-[compose.yaml](compose.yaml)
-
-
-
-### Build and run from docker
-[README.Docker.md](README.Docker.md)
-
-
-### Run outside of docker
-
-This section provides instructions for setting up and running the project from the command line or your IDE.
-
-
-[main.py](./spacefield/main.py)  will start its own Uvicorn server on port 8001 when invoked as the main script.
-
-
-
-#### Setup and Execution
-
-##### Using python -m venv:
-First, install build dependencies:
-
-```commandline
-sudo apt update; sudo apt install build-essential libssl-dev zlib1g-dev \
-libbz2-dev libreadline-dev libsqlite3-dev curl \
-libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
-```
-
-Next, install pyenv:
-```commandline
-curl https://pyenv.run | bash
-```
-
-Install python version:
-```commandline
-pyenv install 3.10.13
-```
-
-
-rom the project folder, set up a Python virtual environment using `python -m venv`:
-```commandline
-pyenv local 3.10.13
+```bash
+pyenv install 3.11.6
+pyenv local 3.11.6
 python -m venv .venv
 source .venv/bin/activate
-```
-
-Alternatively, if you prefer using `penv-virtualenv`:
-
-```commandline
-pyenv local 3.10.13
-pyenv virtualenv 3.10.13 .venv
-...
-```
-
-Install required packages:
-```commandline
 pip install -r requirements.txt
-```
-
-To run the program as a module:
-```commandline
 python -m spacefield.main
 ```
 
-Or, from your IDE, set 'spacefield' as the source root and run main.py.
+Defaults to port 8001 when run as a module.
 
+## Required data files
 
+The service expects the following files in the directory pointed to by `DATA_PATH` (default `/spacefield/data` inside the container).
 
+**SPK ephemeris kernels** (position and velocity):
 
+- `de440s.bsp`, `mar097.bsp`, `jup365.bsp`, `sat441.bsp`, `nep095.bsp`, `ura111.bsp`, `ura115.bsp`, `plu043.bsp`
 
+**SPICE orientation kernels** (Moon):
+
+- `moon_080317.tf`, `pck00008.tpc`, `moon_pa_de421_1900-2050.bpc`
+
+**Other:**
+
+- `gm_de440.tpc` — gravitational parameters used by burn detection
+- `spacecraft_registry.json` — spacecraft NAIF IDs and metadata for the `/spacecraft` endpoints
+
+Coverage of the supplied kernels: **1 Jan 1995 — 31 Dec 2050**.
+
+Most SPK kernels are mirrored at the NAIF [generic kernels](https://naif.jpl.nasa.gov/pub/naif/generic_kernels/) repository.
+
+## References
+
+- [Skyfield](https://rhodesmill.org/skyfield/) — ephemeris loading and time scales
+- [WGCCRE 2009 Report on Cartographic Coordinates and Rotational Elements](https://d9-wret.s3.us-west-2.amazonaws.com/assets/palladium/production/s3fs-public/atoms/files/WGCCRE2009reprint.pdf) — IAU body orientation models
+- [JPL Horizons](https://ssd.jpl.nasa.gov/horizons/) — spacecraft ephemerides
