@@ -3,3 +3,4 @@ fastapi
 pytz
 python-dotenv
 uvicorn[standard]
+astroquery

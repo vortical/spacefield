@@ -7,12 +7,12 @@ from skyfield import api
 from skyfield.api import PlanetaryConstants
 from skyfield.functions import mxv
 
+from spacefield.config import DATA_DIRECTORY
 from spacefield.kernels.orientation_provider import OrientationProvider
 from spacefield.common.geometry import circular_angle
 from spacefield.model.bodies import Vector, Axis
 
-data_directory = '/spacefield/data'
-loader = api.Loader(data_directory)
+loader = api.Loader(DATA_DIRECTORY)
 
 pc = PlanetaryConstants()
 pc.read_text(loader('moon_080317.tf'))
